@@ -55,7 +55,7 @@ a7822cf18e4c64a75b739f0aece19f6f3007cba69c9bb06924e5cf2b54690af4  ./bench/result
 3800bec6b75a69ccde30c2a61a51bc2057f997e54cb252f5ab686a0f8b84920a  ./bench/run.py
 d1b95e57b944b4dd26ce80662a036793ce716f8e8281326d3981a2aa2782f951  ./bench/summarise.py
 301822743fbcdf3d3c8e823d17349adf698e59232023f3c4f375c24370b48b7f  ./bench/tasks.py
-578f5c8f9add75204eacb8d127fcdd907fe041d7cd890835da784d894bdcb105  ./CITATION.cff
+3654bff69251ca85f71a50cd4bbb5b47394a0f6be3a0449c6490f4b5e60050ca  ./CITATION.cff
 f8aecfac85b4cdcc1f920aad1f3b4394de4d8c8d442ca2a0e33eaf8399e468b3  ./docs/EXAMPLES.md
 f1c342c7c7591c4a4835f81a89aec85f8e1d3c9af42528e8f7ec2ae5856945e5  ./docs/EXPERIMENT_RECORD.md
 d35469a4788520d6ea12f2be4f0182dfe46f6144dc0096b993aff2cfd70236c4  ./docs/figures/accuracy-vs-speed-dark.svg
@@ -85,7 +85,7 @@ e15d73c1545260d71cbc59b1d270fa2311eb1ae11c1aa6d60a4fc8b2f77e31d6  ./env/azure/te
 f56437c7ec1f1e75cfd7882cbcc7922eedbbe06804496669078a4530ba562d09  ./env/hpc/bench.pbs
 10b55c841002bf60219a2ca44e7dbe862b2569adcd5969a93e121f217553eb53  ./env/hpc/getgomp.py
 4c0b0674d663391d42ae7bd85d8dea3eede06ed952b3a444e0ef1ff23feb41f7  ./env/hpc/list.txt
-0a901af0b568784427dc326569a2bd6a567c49d0b2d6352237c8790eb3189cb3  ./env/hpc/README.md
+30612ac69e1b797903f07bf7d2d391a0521b013d1ed22fb79b3c87cd19d8a894  ./env/hpc/README.md
 03ef09c9536e06b91242ca848e1b4b4ea7a488488bae3f7ccbe973db4b976b7f  ./env/hpc/setup_hpc.sh
 9730bd9afaef0c7c7cb915e2fc3afe1f19abcca59001f48fd4282ee1fc78a5c3  ./env/hpc/ssh_config.example
 c3038d17e10210ed3b935aa0f9fd731e9fafce552f52bb73bdeb5a934d7c13e6  ./env/hpc/submit.sh

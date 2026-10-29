@@ -11,7 +11,7 @@ abstract: >-
   scoring code and infrastructure code to reproduce the runs.
 authors:
   - name: "MedicalEnvironment"
-repository-code: "https://github.com/MedicalEnvironment/comperehensive_llm_run"
+repository-code: "https://github.com/MedicalEnvironment/local-llm-bioinformatics-benchmark"
 license: MIT
 version: "1.0.0"
 date-released: "2026-10-29"
