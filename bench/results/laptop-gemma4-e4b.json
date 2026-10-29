@@ -1,5 +1,5 @@
 {
- "name": "gemma4-e4b",
+ "name": "laptop-gemma4-e4b",
  "gguf": "gemma-4-E4B-it-qat-UD-Q4_K_XL.gguf",
  "extra": [
   "-c",

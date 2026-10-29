@@ -1,5 +1,7 @@
 # Laptop: running the benchmark locally
 
+**Prerequisites:** Linux with an NVIDIA GPU (8 GB+ memory) and driver, Python 3.10+, `curl`, about 15 GB of disk. No root access needed. Replace `<path-to-repo>` with where you cloned this repository.
+
 Original run: RTX 4060 Laptop GPU (8 GB), Ryzen 7 7435HS, 15 GB RAM, Ubuntu 26.04. No root needed.
 
 ```bash

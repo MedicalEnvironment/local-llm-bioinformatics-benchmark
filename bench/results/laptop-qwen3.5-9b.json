@@ -1,5 +1,5 @@
 {
- "name": "qwen3.5-9b",
+ "name": "laptop-qwen3.5-9b",
  "gguf": "Qwen3.5-9B-Q4_K_M.gguf",
  "extra": [
   "-c",

@@ -1,5 +1,7 @@
 # Azure: running the benchmark on a T4 VM
 
+**Prerequisites:** an Azure subscription where you can create resources, GPU quota (see below), the Azure CLI (`az login`), Terraform 1.6+ (optional; plain `az` commands are given too), an SSH key pair, and basic shell/SSH use. Costs money while the VM exists; the last step deletes everything.
+
 Tested 2026-10-29: `Standard_NC4as_T4_v3` (1x Tesla T4 16 GB, 4 vCPU, 28 GB RAM) in North Europe, Microsoft
 `ubuntu-hpc` 24.04 image (NVIDIA driver 580 preinstalled). Total cost about $3-4.
 

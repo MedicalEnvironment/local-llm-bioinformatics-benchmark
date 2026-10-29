@@ -8,11 +8,11 @@ What was done, when, with which versions, and the exact commands used to obtain 
 | Date (2026) | Step |
 | --- | --- |
 | 15 Oct | Laptop set up: llama.cpp b11639 (CUDA 12.8 build), Python venv. Benchmark designed (`tasks.py`), data downloaded and frozen, synthetic files and answer keys generated (`make_data.py`), RAG index built with EmbeddingGemma-300M (`run.py embed`). |
-| 15 Oct | Laptop runs: `qwen3.5-9b` and `gemma4-e4b` (53 items each; retrieval output limit 4,096 tokens at the time). A `gemma4-12b` run was stopped after 2 items (13 tokens/s, CPU offload) and is excluded. |
+| 15 Oct | Laptop runs: `laptop-qwen3.5-9b` and `laptop-gemma4-e4b` (originally named without the `laptop-` prefix; renamed for clarity) (53 items each; retrieval output limit 4,096 tokens at the time). A `gemma4-12b` run was stopped after 2 items (13 tokens/s, CPU offload) and is excluded. |
 | 15 Oct | Retrieval output limit raised to 8,192 tokens in `run.py` for all later runs. |
 | 29 Oct | Azure: resource group `rg-llm-bench-neu` (North Europe). NC16as/NC8as T4 sizes failed with AllocationFailed in all zones; NC4as_T4_v3 created. Runs `t4-qwen3.5-9b`, `t4-gemma4-e4b`, `t4-gpt-oss-20b`, `t4-qwen3.5-35b-a3b`, then `llama-bench` for each. |
 | 29 Oct | RTU HPC: harness ported (`LLAMA_BIN`, `LLM_PORT`, multi-GPU VRAM accounting), container approach set up. First jobs on wn74 hung (Singularity); switched to Apptainer sandbox on `/scratch`, fixed `APPTAINERENV_LD_LIBRARY_PATH`. Runs `hpc-qwen3.5-9b` (wn73, 1x L40S) and `hpc-qwen3.5-122b-a10b` (wn75, 2x L40S), each followed by `llama-bench`. |
-| 29 Oct | Results collected, `summary.csv` generated, report written. |
+| 29 Oct | Results collected, `summary.csv` generated, report written. Azure resource group deleted after the run. |
 
 ## Exact data download commands (15 Oct 2026)
 

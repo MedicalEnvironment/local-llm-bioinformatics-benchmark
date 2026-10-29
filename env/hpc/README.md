@@ -1,5 +1,7 @@
 # RTU HPC (Rudens cluster): running the benchmark on L40S GPUs
 
+**Prerequisites:** an RTU HPC account with an allocation (jobs are charged to it), SSH key login, and basic familiarity with PBS (`qsub`, `qstat`). This guide is specific to the RTU "Rudens" cluster; on another Torque/PBS cluster, the node names, modules and GPU properties will differ.
+
 Tested 2026-10-29 on `ui-1.hpc.rtu.lv` (CentOS 7, Torque 6.1 + Moab, NVIDIA driver 550) with jobs on the
 L40S nodes `wn73` (1 GPU) and `wn75` (2 GPUs).
 
