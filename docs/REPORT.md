@@ -168,17 +168,18 @@ The same table, machine-readable, is in `bench/results/summary.csv`.
 
 ## Error analysis
 
-Most failures were not crashes but plausible-looking wrong answers, which is the main risk of using these models without checks. Of 13 failed scripts across the eight runs, 9 ran to completion (exit code 0) and printed a confident but wrong result; only 4 crashed.
+Most failures were not crashes but plausible-looking wrong answers, which is the main risk of using these models without checks. Of 13 failed scripts across the eight runs, 9 ran to completion (exit code 0) and printed a confident but wrong result; only 4 crashed. Item-by-item results for every run are in [RESULTS_BY_ITEM.md](RESULTS_BY_ITEM.md), and verbatim examples in [EXAMPLES.md](EXAMPLES.md).
 
 ### Scripting failures
 
 | Failure | Runs affected | What went wrong |
 | --- | --- | --- |
 | Longest ORF off by one | Qwen3.5-9B (T4), Qwen3.5-35B-A3B, gpt-oss-20b; Gemma-4-E4B printed nothing (laptop) or crashed (T4) | Reported the correct length (3,399 bp) but coordinates 15,505–18,902, 15,505–18,901 or 15,504–18,902 instead of 15,505–18,903: a 0-based vs 1-based or stop-codon-inclusion slip. |
-| VCF filter: wrong column layout | Qwen3.5-9B (laptop, T4) | Assumed the standard 10-column VCF and read FILTER (`PASS`) as QUAL, then crashed or printed kept = 0 instead of 207. |
+| VCF filter: wrong column layout | Qwen3.5-9B (laptop, T4) | Assumed sample columns are always present and read QUAL from the wrong column: the laptop script skipped every line and printed kept = 0 instead of 207; the T4 script read FILTER (`PASS`) as QUAL and crashed. |
 | VCF filter: invented API | Qwen3.5-9B (HPC) | Called `pandas.read_vcf`, which does not exist. |
 | GC content: lost first letter of gene names | Qwen3.5-9B (laptop) | Off-by-one string slice turned `TP53` into `P53`; every GC value was right. Gemma-4-E4B (laptop) printed UNKNOWN for every gene name instead. |
-| Translation: wrong record label | Gemma-4-E4B (T4) | Printed the FASTA ID instead of the gene name from the `[gene=…]` tag; the lengths were correct. |
+| Translation: wrong record label | Gemma-4-E4B (T4); Gemma-4-E4B (laptop) printed nothing | Printed the FASTA ID instead of the gene name from the `[gene=…]` tag; the lengths were correct. |
+| k-mer count: wrong library call | Gemma-4-E4B (laptop) | Called Biopython's `SeqIO.parse()` without its required format argument and crashed. |
 
 Only Qwen3.5-122B-A10B passed all seven, including the six-frame ORF coordinate convention that tripped every smaller model.
 

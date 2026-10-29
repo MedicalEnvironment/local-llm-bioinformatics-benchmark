@@ -1,5 +1,7 @@
 # Local and private LLMs for bioinformatics: a three-environment benchmark
 
+> **In short.** We gave five open-source AI models the same 53 bioinformatics tasks (write a script, do a lab calculation, recall a tool option or gene location) on a laptop, an Azure GPU and the RTU HPC, and checked every answer automatically against keys fixed in advance. The largest model (Qwen3.5-122B, HPC) got every script right and scored 50/53; a mid-size model on one cloud GPU also scored 50/53. Smaller models often wrote scripts that ran but printed wrong numbers. Giving any model the relevant documentation fixed nearly all factual errors. No data left our own machines.
+
 Can open-source AI language models (LLMs), running only on hardware we control, write correct
 bioinformatics scripts, solve lab calculations and answer questions about tools and genes, without
 sending any data to an outside service? This repository holds the test, its frozen input data, every raw
@@ -14,6 +16,8 @@ respectively.
 | Know what we found | [Results](#results) below, then [docs/REPORT.md](docs/REPORT.md) |
 | Know how answers were judged right or wrong | [How correctness was decided](#how-correctness-was-decided) |
 | See every question and its correct answer | [docs/QUESTIONS.md](docs/QUESTIONS.md) |
+| See which model got which question right | [docs/RESULTS_BY_ITEM.md](docs/RESULTS_BY_ITEM.md) |
+| See real model answers: correct, silently wrong, crashed | [docs/EXAMPLES.md](docs/EXAMPLES.md) |
 | Know where the data came from and which versions ran | [docs/EXPERIMENT_RECORD.md](docs/EXPERIMENT_RECORD.md) |
 | Rerun it | [Rerunning](#rerunning) |
 
@@ -99,7 +103,8 @@ The exact scoring code is `score_script`, `score_reason` and `score_retr` in [be
 
 ```
 bench/                 benchmark: run.py (runs a model through all items), tasks.py (items + scorers),
-                       make_data.py (synthetic data + correct answers), make_questions_md.py, summarise.py
+                       make_data.py (synthetic data + correct answers), summarise.py,
+                       make_questions_md.py / make_results_md.py (regenerate the docs/ tables)
 bench/data/            frozen inputs: NCBI records, tool manuals, synthetic VCF/FASTQ, truth.json
 bench/results/         one JSON per run with every answer, generated script, script output and timing;
                        file prefix = machine (laptop-, t4- = Azure, hpc- = RTU HPC); summary.csv
@@ -107,7 +112,7 @@ env/laptop/            laptop guide, model list and checksums, download script
 env/azure/terraform/   Terraform for the Azure GPU VM (resource group, network, IP-restricted firewall, auto-shutdown)
 env/azure/             Azure guide, setup and run scripts
 env/hpc/               RTU HPC guide, setup script, PBS job script, submitter
-docs/                  REPORT.md, QUESTIONS.md, EXPERIMENT_RECORD.md, MANIFEST.sha256
+docs/                  REPORT.md, QUESTIONS.md, RESULTS_BY_ITEM.md, EXAMPLES.md, EXPERIMENT_RECORD.md, MANIFEST.sha256
 ```
 
 ## Rerunning

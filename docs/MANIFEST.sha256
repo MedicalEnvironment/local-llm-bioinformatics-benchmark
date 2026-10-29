@@ -25,6 +25,7 @@ a5470f63b695c82ee3e61ae42e57d3bba9d10ea45f77e2c5ca69fabb74ab8821  ./bench/data/r
 46d8fc4db220d446ebef8bdf5ce3126de43340dbad0e99fa4a0481be492b2273  ./bench/docs2txt.py
 4be877908bf3f9f71c45a42815b4974f9195483baa3323494cc666e850e8cec7  ./bench/make_data.py
 97277ddaffab701fad0e80cf282fd08a4ef40216061bd023d97b87a1fd8d649c  ./bench/make_questions_md.py
+c1d25eec9952d13a3d872ba11f7cb028e9ad9eba7a5a063dd83c998426bc8e54  ./bench/make_results_md.py
 287d131024bbb57eef1854c623f9d061bb494fef81c7dd26f6f94c02c9afbe50  ./bench/results/hpc-qwen3.5-122b-a10b.bench.json
 adb0f0d534fd6556090b2d03d905d6947daf9addb4d57d321c1603f3f1f74362  ./bench/results/hpc-qwen3.5-122b-a10b.json
 3309ac7e234e48baa9ce42657ebc9990d11056e99eabe8e4a922fdb314eb6512  ./bench/results/hpc-qwen3.5-122b-a10b.progress
@@ -52,9 +53,11 @@ a7822cf18e4c64a75b739f0aece19f6f3007cba69c9bb06924e5cf2b54690af4  ./bench/result
 3800bec6b75a69ccde30c2a61a51bc2057f997e54cb252f5ab686a0f8b84920a  ./bench/run.py
 f8a217413f64ea60850c40e90cacae95ae7572315f8af64f3e110287a4a36e57  ./bench/summarise.py
 e3b139a8791be1f83c817564887decb3966cfa1194f863d3fc2e90839e500052  ./bench/tasks.py
+aee33b4360ccdd0612ee34b7b96bd628f8cafd61566086baac8910ea777bbaed  ./docs/EXAMPLES.md
 0dd6347ae185bc21c23a1244c595784c5e93b4d82ebb7ac1df6981a436b68525  ./docs/EXPERIMENT_RECORD.md
 bf5807cd616d2a3800dab9d082fff78f3490c825ccfec9e5299aacbcbc0ecb78  ./docs/QUESTIONS.md
-c08ccc92c7d50e88418500254262038fb07d285a2272948f0b5d4221973d92bc  ./docs/REPORT.md
+dc5993d14f3db6a270b6c9a80196c9da491f72925ad5897e39bf5cc0f6203e74  ./docs/REPORT.md
+091d816eea431f974b8781952535e7cbf3b051c5c207f1436a2c51347657bff4  ./docs/RESULTS_BY_ITEM.md
 4e3e98e1d304a7541117d6deb1566bcf502026345e1f2fdf8b928dca8ceee3a3  ./env/azure/dl_sums.txt
 b4f4e49f8de397b489591df67dae0186e7a9b5dd3f8e3e0c6e3d45ee0795a517  ./env/azure/list.txt
 a1bd18abe1e775a2b2d7399e9cde8e6d67d07c599b6581cadc861714c3fe5a1d  ./env/azure/queue_azure.sh
@@ -83,4 +86,4 @@ f07db1cd2cc6971955dbc8d3106134037c958fadd53e5bc2bcec27869dccc72c  ./env/hpc/sums
 d09891acc86f5d8440846e809b65646316dd375b0056c4fdfaae2fed278bd22c  ./env/laptop/sums.txt
 366fea10761dc5c1e4475501d867ddec477c9ef5c32f2d351ad802262d2766dc  ./.gitignore
 622146bd1a591b2b69a5620514870cc0b9c9037b9fbcba04c0d22a7109477ef5  ./LICENSE
-a403e7642bc7739e4ba862950d6508a905d94c76730ac224f06e1239dc0de720  ./README.md
+9bfede4c35f9cb8f111b41d839ceba59916cd5a74f6b1a6d609a2847e8674aa2  ./README.md
