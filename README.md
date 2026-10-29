@@ -1,44 +1,59 @@
-# Local and private LLMs for bioinformatics: a three-environment benchmark
+<h1 align="center">Local LLMs for Bioinformatics</h1>
 
-> **In short.** We gave five open-source AI models the same 53 bioinformatics tasks (write a script, do a lab calculation, recall a tool option or gene location) on a laptop, an Azure GPU and the RTU HPC, and checked every answer automatically against keys fixed in advance. The largest model (Qwen3.5-122B, HPC) got every script right and scored 50/53; a mid-size model on one cloud GPU also scored 50/53. Smaller models often wrote scripts that ran but printed wrong numbers. Giving the models the relevant documentation fixed nearly all factual errors. Each item was asked once, so small score differences are within noise. No data left our own machines.
+<p align="center"><strong>Can open-source AI models, running only on hardware we control, do real bioinformatics work?</strong><br>
+A reproducible benchmark on a laptop, an Azure GPU and the RTU HPC cluster.</p>
 
-Can open-source AI language models (LLMs), running only on hardware we control, write correct
-bioinformatics scripts, solve lab calculations and answer questions about tools and genes, without
-sending any data to an outside service? This repository holds the test, its frozen input data, every raw
-result, and the code to rerun it on a laptop, an Azure cloud GPU and the RTU HPC cluster.
+<p align="center">
+<picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/badge-licence-dark.svg"><img src="docs/figures/badge-licence-light.svg" alt="Licence: MIT"></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/badge-models-dark.svg"><img src="docs/figures/badge-models-light.svg" alt="Models: 5 open-weights"></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/badge-runs-dark.svg"><img src="docs/figures/badge-runs-light.svg" alt="Runs: 8 on 3 machines"></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/badge-items-dark.svg"><img src="docs/figures/badge-items-light.svg" alt="Items: 53 auto-scored"></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/badge-data-dark.svg"><img src="docs/figures/badge-data-light.svg" alt="Data: public NCBI + synthetic"></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/badge-inference-dark.svg"><img src="docs/figures/badge-inference-light.svg" alt="Inference: llama.cpp b11639"></picture>
+</p>
 
-**Who this is for.** The results, scoring and report need no programming background. Rerunning the
-benchmark needs basic Linux shell use; the Azure and HPC guides also assume SSH, and Terraform or PBS
-respectively.
+<p align="center">
+<a href="#results">Results</a> ·
+<a href="#how-correctness-was-decided">How it was scored</a> ·
+<a href="docs/QUESTIONS.md">The 53 questions</a> ·
+<a href="docs/EXAMPLES.md">Real answers</a> ·
+<a href="docs/REPORT.md">Full report</a> ·
+<a href="#rerunning">Rerun it</a>
+</p>
 
-| If you want to... | Read |
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/scores-dark.svg"><img src="docs/figures/scores-light.svg" alt="Stacked bar chart of each run's score by section, out of 53. Qwen3.5-122B on 2× L40S and Qwen3.5-35B on a T4 both score 50; Gemma-4-E4B on a laptop scores 37."></picture></p>
+
+> **In short.** Five open-source models answered the same 53 bioinformatics tasks (write a script, do a lab
+> calculation, recall a tool option or gene location), and every answer was checked automatically against keys
+> fixed in advance. The largest model (Qwen3.5-122B, RTU HPC) got every script right and scored 50/53; a
+> mid-size model on one cloud GPU also scored 50/53. Smaller models often wrote scripts that ran but printed
+> wrong numbers. Giving the models the relevant documentation fixed nearly all factual errors. No data left our
+> own machines. Each item was asked once, so small score differences are within noise.
+
+## Contents
+
+| If you want to... | Go to |
 | --- | --- |
-| Know what we found | [Results](#results) below, then [docs/REPORT.md](docs/REPORT.md) |
+| See what we found | [Results](#results) |
 | Know how answers were judged right or wrong | [How correctness was decided](#how-correctness-was-decided) |
 | See every question and its correct answer | [docs/QUESTIONS.md](docs/QUESTIONS.md) |
 | See which model got which question right | [docs/RESULTS_BY_ITEM.md](docs/RESULTS_BY_ITEM.md) |
 | See real model answers: correct, silently wrong, crashed | [docs/EXAMPLES.md](docs/EXAMPLES.md) |
+| Read the full write-up, background and limitations | [docs/REPORT.md](docs/REPORT.md) |
 | Know where the data came from and which versions ran | [docs/EXPERIMENT_RECORD.md](docs/EXPERIMENT_RECORD.md) |
-| Rerun it | [Rerunning](#rerunning) |
+| Rerun it on a laptop, Azure or the RTU HPC | [Rerunning](#rerunning) |
+
+**Who this is for.** The results, scoring and report need no programming background. Rerunning the benchmark
+needs basic Linux shell use; the Azure and HPC guides also assume SSH, and Terraform or PBS respectively.
 
 ## What was tested
 
-Five models, from small (4 GB file) to very large (77 GB), each answered the same **53 items**:
-
-- **Scripting (7):** write a Python script for a common task (GC content, translation, longest ORF, GFF
-  summary, VCF filtering, FASTQ quality, k-mer counting). The script is actually run.
-- **Calculations (10):** short lab and genetics problems (dilutions, Hardy–Weinberg, qPCR fold change, ...).
-- **Facts (18, asked twice):** command-line options of samtools, bcftools and seqkit, and cytogenetic
-  locations of human genes. Asked once from memory ("closed-book") and once with the relevant manual or
-  NCBI excerpt pasted into the question ("RAG").
-
-They ran on three machines: a laptop (RTX 4060, 8 GB GPU memory), an Azure VM (Tesla T4, 16 GB) and RTU
-HPC nodes (one or two NVIDIA L40S, 48 GB each). All inputs are public NCBI records, public tool manuals, or
-synthetic files generated from them; no patient or private data were used.
+| | |
+| --- | --- |
+| **Models** | Qwen3.5-122B-A10B, Qwen3.5-35B-A3B, gpt-oss-20b, Qwen3.5-9B, Gemma-4-E4B (4-bit files, 4–77 GB) |
+| **Machines** | Laptop (RTX 4060, 8 GB GPU memory) · Azure VM (Tesla T4, 16 GB) · RTU HPC nodes (1–2× NVIDIA L40S, 48 GB each) |
+| **Scripting (7)** | Write a Python script: GC content, translation, longest ORF, GFF summary, VCF filtering, FASTQ quality, k-mer counting. The script is actually run. |
+| **Calculations (10)** | Short lab and genetics problems: dilutions, Hardy–Weinberg, qPCR fold change, primer Tm, coverage, ... |
+| **Facts (18, asked twice)** | samtools/bcftools/seqkit options and human gene cytogenetic locations; once from memory, once with the relevant manual or NCBI excerpt pasted in (RAG) |
+| **Data** | Public NCBI records, public tool manuals, and synthetic VCF/FASTQ generated from them with a fixed seed; no patient or private data |
+| **Engine** | llama.cpp b11639, the same build on every machine; temperature 0.6, one run per item |
 
 ## Results
-
-29 October 2026; 53 items per run; each item asked once.
 
 | Model | Machine | Scripting /7 | Calculations /10 | Facts from memory /18 | Facts with docs (RAG) /18 | Total /53 | Speed (tokens/s)† |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -61,6 +76,8 @@ What this means:
 - **Giving the model the documentation (RAG) fixed nearly all factual errors**: every run scored 18/18, except the laptop 9B run, whose two misses were answers cut off by the older length limit. The gene questions are easy in this form, because the pasted passage states the answer; see the report's limitations.
 - **Hardware changed speed far more than quality**: the same 9B model scored 43–46 on three machines, a spread consistent with run-to-run noise.
 - **A 35B "mixture-of-experts" model on one 16 GB GPU had the same total (50/53) as the 122B model** in this single run, although only the 122B passed every script.
+
+<p align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="docs/figures/accuracy-vs-speed-dark.svg"><img src="docs/figures/accuracy-vs-speed-light.svg" alt="Scatter of total score against generation speed for each run. The 122B and 35B models score highest; the 9B on an L40S is fastest at about 82 tokens per second."></picture></p>
 
 ## How correctness was decided
 
@@ -94,7 +111,8 @@ chance.
 
 The exact scoring code is `score_script`, `score_reason` and `score_retr` in [bench/tasks.py](bench/tasks.py).
 
-## Glossary
+<details>
+<summary><strong>Glossary</strong>: RAG, mixture-of-experts, quantisation, tokens/s and other terms</summary>
 
 | Term | Meaning |
 | --- | --- |
@@ -112,12 +130,16 @@ The exact scoring code is `score_script`, `score_reason` and `score_retr` in [be
 | llama.cpp | The open-source program used to run every model, the same version on every machine. |
 | HPC, PBS, node | RTU's computing cluster; PBS is its job scheduler; a node is one server in it. |
 
-## Repository layout
+</details>
+
+<details>
+<summary><strong>Repository layout</strong></summary>
 
 ```
 bench/                 benchmark: run.py (runs a model through all items), tasks.py (items + scorers),
                        make_data.py (synthetic data + correct answers), summarise.py,
-                       make_questions_md.py / make_results_md.py (regenerate the docs/ tables)
+                       rescore.py (re-apply scorers to stored answers),
+                       make_questions_md.py / make_results_md.py / make_figures.py (regenerate docs/)
 bench/data/            frozen inputs: NCBI records, tool manuals, synthetic VCF/FASTQ, truth.json
 bench/results/         one JSON per run with every answer, generated script, script output and timing;
                        file prefix = machine (laptop-, t4- = Azure, hpc- = RTU HPC); summary.csv
@@ -126,19 +148,29 @@ env/azure/terraform/   Terraform for the Azure GPU VM (resource group, network, 
 env/azure/             Azure guide, setup and run scripts
 env/hpc/               RTU HPC guide, setup script, PBS job script, submitter
 docs/                  REPORT.md, QUESTIONS.md, RESULTS_BY_ITEM.md, EXAMPLES.md, EXPERIMENT_RECORD.md, MANIFEST.sha256
+docs/figures/          README charts and badges (light and dark), generated by make_figures.py
 ```
+
+</details>
 
 ## Rerunning
 
-- **Laptop** (any Linux PC with an NVIDIA GPU, 8 GB+): [env/laptop/README.md](env/laptop/README.md)
-- **Azure** (needs GPU quota in your subscription): [env/azure/README.md](env/azure/README.md)
-- **RTU HPC** (needs an RTU HPC account and allocation): [env/hpc/README.md](env/hpc/README.md)
+| Where | Needs | Guide |
+| --- | --- | --- |
+| Laptop | Linux, NVIDIA GPU with 8 GB+, Python 3.12+ | [env/laptop/README.md](env/laptop/README.md) |
+| Azure | Subscription with T4 (or larger) GPU quota, Azure CLI, Terraform optional | [env/azure/README.md](env/azure/README.md) |
+| RTU HPC | RTU HPC account and allocation, SSH key, PBS basics | [env/hpc/README.md](env/hpc/README.md) |
 
 Summarise results: `python bench/summarise.py bench/results/hpc-qwen3.5-122b-a10b.json`.
-Check file integrity: `sha256sum -c docs/MANIFEST.sha256`.
+Rescore stored answers after changing a key in `bench/tasks.py`: `python bench/rescore.py`.
+Regenerate the tables and figures in `docs/`: `python bench/make_questions_md.py`, `python bench/make_results_md.py`,
+`python bench/make_figures.py`. Check file integrity: `sha256sum -c docs/MANIFEST.sha256`.
 
-Model files are not included (4–77 GB each); the guides download them from Hugging Face and verify their
-checksums.
+Model files are not included (4–77 GB each); the guides download them from Hugging Face and verify their checksums.
+
+## Citing
+
+If you use this benchmark, please cite it with GitHub's **Cite this repository** button (from [CITATION.cff](CITATION.cff)).
 
 ## Licence
 
