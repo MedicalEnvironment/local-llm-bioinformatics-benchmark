@@ -1,4 +1,4 @@
-"""Draw the README figures from bench/results/*.json as static SVGs (light and dark variants) into docs/figures/.
+"""Draw the README figures from bench/results/*.json as static SVGs into docs/figures/.
 Colours: validated categorical palette (adjacent CVD dE >= 8.4 in both modes). Rerun: python bench/make_figures.py"""
 import json, statistics
 from pathlib import Path
@@ -30,7 +30,13 @@ for rid, model, machine in RUNS:
     data.append(dict(model=model, machine=machine, sec=sec, total=sum(sec.values()), tps=tps))
 
 
-def svg(w, h, body, title):
+def svg(w, h, body, title, card=False, pad=24):
+    """card=True draws the figure on its own opaque white card, so it stays readable whatever theme the page uses
+    (GitHub's theme is not visible to images; prefers-color-scheme follows the OS, which can differ)."""
+    if card:
+        bg = (f'<rect x="0.5" y="0.5" width="{w + 2 * pad - 1}" height="{h + 2 * pad - 1}" rx="12" fill="#ffffff" stroke="#d0d7de"/>'
+              f'<g transform="translate({pad},{pad})">{body}</g>')
+        w, h, body = w + 2 * pad, h + 2 * pad, bg
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" '
             f'aria-label="{escape(title)}" {FONT}><title>{escape(title)}</title>{body}</svg>\n')
 
@@ -73,7 +79,7 @@ def stacked(mode):
                 b.append(f'<text x="{x + w / 2:.1f}" y="{y + 15.5}" font-size="11.5" font-weight="600" fill="{ink}" text-anchor="middle">{v}</text>')
             x += v * scale
         b.append(f'<text x="{x + 8:.1f}" y="{y + 16}" font-size="14" font-weight="700" fill="{t["text"]}">{d["total"]}</text>')
-    return svg(W, H, "".join(b), "Benchmark score by section for each run")
+    return svg(W, H, "".join(b), "Benchmark score by section for each run", card=True)
 
 
 def scatter(mode):
@@ -98,7 +104,7 @@ def scatter(mode):
         b.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="6" fill="{t["dot"]}" stroke="{t["surface"]}" stroke-width="2"/>')
         b.append(f'<text x="{cx + dx:.1f}" y="{cy + dy:.1f}" font-size="12.5" font-weight="600" fill="{t["text"]}" text-anchor="{a}">{escape(d["model"])}'
                  f'<tspan font-weight="400" fill="{t["text2"]}"> · {escape(d["machine"])}</tspan></text>')
-    return svg(W, H, "".join(b), "Total score against generation speed for each run")
+    return svg(W, H, "".join(b), "Total score against generation speed for each run", card=True)
 
 
 def badge(label, value, mode):
@@ -113,9 +119,9 @@ def badge(label, value, mode):
 
 BADGES = [("licence", "MIT"), ("models", "5 open-weights"), ("runs", "8 on 3 machines"), ("items", "53 auto-scored"),
           ("data", "public NCBI + synthetic"), ("inference", "llama.cpp b11639")]
-for mode in ("light", "dark"):
-    (OUT / f"scores-{mode}.svg").write_text(stacked(mode))
-    (OUT / f"accuracy-vs-speed-{mode}.svg").write_text(scatter(mode))
-    for k, v in BADGES:
-        (OUT / f"badge-{k}-{mode}.svg").write_text(badge(k, v, mode))
+# One theme-proof file per figure: charts on a white card, badges with their own solid background.
+(OUT / "scores.svg").write_text(stacked("light"))
+(OUT / "accuracy-vs-speed.svg").write_text(scatter("light"))
+for k, v in BADGES:
+    (OUT / f"badge-{k}.svg").write_text(badge(k, v, "light"))
 print("figures written to", OUT)
