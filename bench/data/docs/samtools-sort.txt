@@ -1,0 +1,314 @@
+
+
+	samtools-sort(1) manual page
+
+Manual page from samtools-1.24
+released on 9 July 2026
+
+NAME
+samtools sort – sorts SAM/BAM/CRAM files
+
+SYNOPSIS
+samtools sort
+[options]
+[in.sam|in.bam|in.cram]
+
+DESCRIPTION
+
+Sort alignments by leftmost coordinates, by read name when -n or
+-N are used, by tag contents with -t, or a minimiser-based
+collation order with -M.  An appropriate @HD SO
+sort order header tag will be added or an existing one updated if
+necessary, along with the @HD SS sub-sort header tag where
+appropriate.
+
+The sorted output is written to standard output by default, or to the
+specified file
+(out.bam)
+when
+-o
+is used.
+This command will also create temporary files
+tmpprefix.%d.bam
+as needed when the entire alignment data cannot fit into memory
+(as controlled via the
+-m
+option).
+
+Consider using
+samtools collate
+instead if you need name collated data without a full lexicographical sort.
+
+Note that if the sorted output file is to be indexed with
+samtools index,
+the default coordinate sort must be used.
+Thus the -n, -N and -t options are incompatible with
+samtools index.
+
+When sorting by minimiser (-M), the sort order for unplaced
+data is defined by the whole-read minimiser value and the offset into
+the read that this minimiser was observed.  This produces small
+clusters (contig-like, but unaligned) and helps to improve compression
+with LZ algorithms.  This can be improved by supplying a known
+reference to build a minimiser index (-I and -w options).
+
+OPTIONS
+
+-l INT
+
+Set the desired compression level for the final output file, ranging from 0
+(uncompressed) or 1 (fastest but minimal compression) to 9 (best compression
+but slowest to write), similarly to
+gzip(1)'s
+compression level setting.
+
+If
+-l
+is not used, the default compression level will apply.
+
+-u 
+
+Set the compression level to 0, for uncompressed output.  This is a
+synonym for -l 0.
+
+-m INT
+
+Approximately the maximum required memory per thread, specified either in bytes
+or with a
+K, M, or G
+suffix.
+[768 MiB]
+
+To prevent sort from creating a huge number of temporary files, it enforces a
+minimum value of 1M for this setting.
+
+-n
+
+Sort by read names (i.e., the
+QNAME
+field) using an alpha-numeric ordering, rather than by chromosomal coordinates.
+The alpha-numeric or “natural” sort order detects runs of digits in the
+strings and sorts these numerically.  Hence "a7b" appears before "a12b".
+Note this is not suitable where hexadecimal values are in use.
+Sets the header sub-sort (@HD SS) tag to queryname:natural.
+
+-N
+
+Sort by read names (i.e., the
+QNAME
+field) using the lexicographical ordering, rather than by chromosomal
+coordinates.  Unlike -n no detection of numeric components is
+used, instead relying purely on the ASCII value of each character.
+Hence "x12" comes before "x7" as "1" is before "7" in ASCII.  This is
+a more appropriate name sort order where all digits in names are
+already zero-padded and/or hexadecimal values are being used.
+Sets the header sub-sort (@HD SS) tag to queryname:lexicographical.
+
+-t TAG
+
+Sort first by the value in the alignment tag TAG, then by position or name (if
+also using -n or -N).
+
+-M 
+
+Sort unmapped reads (those in chromosome "*") by their sequence
+minimiser (Schleimer et al., 2003; Roberts et al., 2004), also reverse
+complementing as appropriate.  This has the effect of collating some
+similar data together, improving the compressibility of the unmapped
+sequence.  The minimiser kmer size is adjusted using the -K
+option.  Note data compressed in this manner may need to be name
+collated prior to conversion back to fastq.
+
+Mapped sequences are sorted by chromosome and position.
+
+Files with at least one aligned record (being placed at a position on
+a chromosome) use the sort order "coordinate" with a sub-sort of
+"coordinate:minhash".  Files entirely consisting of unaligned data
+use sort order "unsorted" with sub-sort "unsorted:minhash".
+
+-R 
+
+Do not use reverse strand with minimiser sort (only compatible with -M).
+
+-K INT
+
+Sets the kmer size to be used in the -M option. [20]
+
+-I FILE
+
+Build a minimiser index over FILE.  The per-read minimisers
+produced by -M are no longer sorted by their numeric value, but
+by the reference coordinate this minimiser was found to come from (if
+found in the index).  This further improves compression due to
+improved sequence similarity between sequences, albeit with a small
+CPU cost of building and querying the index.  Specifying -I
+automatically implies -M.
+
+-w INT
+
+Specifies the window size for building the minimiser index on the file
+specified in -I.  This defaults to 100.  It may be better to set
+this closer to 50 for short-read data sets (at a higher CPU and
+memory cost), or for more speed up to 1000 for long-read data sets.
+
+-H
+
+Squashes base homopolymers down to a single base pair before
+constructing the minimiser.  This is useful for instruments where the
+primary source of error is in the length of homopolymer.
+
+-o FILE
+
+Write the final sorted output to
+FILE,
+rather than to standard output.
+
+-O FORMAT
+
+Write the final output as
+sam, bam, or cram.
+
+By default, samtools tries to select a format based on the
+-o
+filename extension; if output is to standard output or no format can be
+deduced,
+bam
+is selected.
+
+-T PREFIX
+
+Write temporary files to
+PREFIX.nnnn.bam,
+or if the specified
+PREFIX
+is an existing directory, to
+PREFIX/samtools.mmm.mmm.tmp.nnnn.bam,
+where
+mmm
+is unique to this invocation of the
+sort
+command.
+
+By default, any temporary files are written alongside the output file, as
+out.bam.tmp.nnnn.bam,
+or if output is to standard output, in the current directory as
+samtools.mmm.mmm.tmp.nnnn.bam.
+
+-@ INT
+
+Set number of sorting and compression threads.
+By default, operation is single-threaded.
+
+--no-PG
+
+Do not add a @PG line to the header of the output file.
+
+--template-coordinate
+
+Sorts by template-coordinate, whereby the sort order (@HD SO) is
+unsorted,
+the group order (GO) is
+query,
+and the sub-sort (SS) is
+template-coordinate.
+
+Ordering Rules
+
+The following rules are used for ordering records.
+
+If option -t is in use, records are first sorted by the value of
+the given alignment tag, and then by position or name (if using -n
+or -N).
+For example, “-t RG” will make read group the primary sort key.  The
+rules for ordering by tag are:
+
+Records that do not have the tag are sorted before ones that do.
+
+If the types of the tags are different, they will be sorted so
+that single character tags (type A) come before array tags (type B), then
+string tags (types H and Z), then numeric tags (types f and i).
+
+Numeric tags (types f and i) are compared by value.  Note that comparisons
+of floating-point values are subject to issues of rounding and precision.
+
+String tags (types H and Z) are compared based on the binary
+contents of the tag using the C
+strcmp(3)
+function.
+
+Character tags (type A) are compared by binary character value.
+
+No attempt is made to compare tags of other types — notably type B
+array values will not be compared.
+
+When the -n or -N option is present, records are sorted by
+name.  Historically samtools has used a “natural” ordering
+— i.e. sections consisting of digits are compared numerically while
+all other sections are compared based on their binary representation.
+This means “a1” will come before “b1” and “a9”
+will come before “a10”.  However this alpha-numeric sort can
+be confused by runs of hexadecimal digits.  The newer -N
+option adds a simpler lexicographical based name collation which does not
+attempt any numeric comparisons and may be more appropriate for some
+data sets.  Note care must be taken when using samtools merge to
+ensure all files are using the same collation order.
+Records with the same name will be ordered according to the values of
+the READ1 and READ2 flags (see samtools flags). When that flag
+is also equal, ties are resolved with primary alignments first, then
+SUPPLEMENTARY, SECONDARY, and finally SUPPLEMENTARY plus SECONDARY.
+Any remaining ties are reported in the same order as the input data.
+
+When the 
+--template-coordinate
+option is in use, the reads are sorted by:
+
+The earlier unclipped 5' coordinate of the template.
+
+The higher unclipped 5' coordinate of the template.
+
+The library (from the read group).
+
+The cellular barcode (CB tag, if present).
+
+The molecular identifier (MI tag if present).
+
+The read name.
+
+If unpaired, or if R1 has the lower coordinates of the pair.
+
+When none of the above options are in use,
+reads are sorted by reference (according to the order of the @SQ
+header records), then by position in the reference, and then by the REVERSE
+flag.
+
+Note
+
+Historically
+samtools sort
+also accepted a less flexible way of specifying the final and
+temporary output filenames:
+
+samtools sort
+[-f] [-o]
+in.bam out.prefix
+
+This has now been removed.
+The previous out.prefix argument (and -f option, if any)
+should be changed to an appropriate combination of -T PREFIX
+and -o FILE.  The previous -o option should be removed,
+as output defaults to standard output.
+
+AUTHOR
+
+Written by Heng Li from the Sanger Institute with numerous subsequent
+modifications.
+
+SEE ALSO
+samtools (1),
+samtools-collate (1),
+samtools-merge (1)
+
+Samtools website: <http://www.htslib.org/>
+
+		Copyright © 2025 Genome Research Limited (reg no. 2742969) is a charity registered in England with number 1021457. Terms and conditions.
+

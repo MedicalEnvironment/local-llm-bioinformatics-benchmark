@@ -1,0 +1,60 @@
+{
+ "gc_content": {
+  "TP53": 56.85,
+  "BRCA1": 41.22,
+  "CFTR": 41.53,
+  "HBB": 56.08,
+  "INS": 64.56,
+  "BRAF": 46.15
+ },
+ "translate": {
+  "TP53": 393,
+  "BRCA1": 1863,
+  "CFTR": 1480,
+  "HBB": 147,
+  "INS": 110,
+  "BRAF": 766
+ },
+ "longest_orf": {
+  "start": 15505,
+  "end": 18903,
+  "strand": "+",
+  "length": 3399
+ },
+ "gff_summary": {
+  "counts": {
+   "region": 1,
+   "gene": 92,
+   "CDS": 73,
+   "signal_peptide_region_of_CDS": 1,
+   "mature_protein_region_of_CDS": 1,
+   "mRNA": 23,
+   "exon": 23,
+   "sequence_alteration": 68,
+   "recombination_feature": 6,
+   "binding_site": 10,
+   "regulatory_region": 7,
+   "sequence_feature": 2,
+   "sequence_uncertainty": 1
+  },
+  "total_cds_bp": 44817
+ },
+ "vcf_filter": {
+  "kept": 207,
+  "snv": 151,
+  "indel": 56,
+  "titv": 0.525
+ },
+ "fastq_qc": {
+  "reads": 500,
+  "pass_q20": 277,
+  "overall_mean_q": 23.02
+ },
+ "kmer": {
+  "kmer": "TCAGCCAG",
+  "count": 10,
+  "ties": [
+   "TCAGCCAG"
+  ]
+ }
+}

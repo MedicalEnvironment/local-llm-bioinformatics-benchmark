@@ -1,0 +1,7 @@
+unsloth/Qwen3.5-9B-GGUF Qwen3.5-9B-Q4_K_M.gguf
+unsloth/Qwen3.5-27B-GGUF Qwen3.5-27B-Q4_K_M.gguf
+unsloth/gemma-4-31B-it-GGUF gemma-4-31B-it-Q4_K_M.gguf
+ggml-org/gpt-oss-120b-GGUF gpt-oss-120b-MXFP4.gguf
+unsloth/Qwen3.5-122B-A10B-GGUF Q4_K_M/Qwen3.5-122B-A10B-Q4_K_M-00001-of-00003.gguf
+unsloth/Qwen3.5-122B-A10B-GGUF Q4_K_M/Qwen3.5-122B-A10B-Q4_K_M-00002-of-00003.gguf
+unsloth/Qwen3.5-122B-A10B-GGUF Q4_K_M/Qwen3.5-122B-A10B-Q4_K_M-00003-of-00003.gguf

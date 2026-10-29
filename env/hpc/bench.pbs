@@ -1,0 +1,29 @@
+#!/bin/bash
+#PBS -q batch
+#PBS -j oe
+# Submit with: qsub -N <name> -v NAME=<name>,GGUF=<file> -l nodes=1:ppn=8:gpus=1:l40s,mem=48gb,walltime=12:00:00 bench.pbs
+# Runs the 53-item benchmark (same settings as the laptop/Azure runs), then llama-bench, inside a Debian container.
+set -u
+LLM=$HOME/llm
+cd $LLM/bench
+# Torque lists the job's GPUs in PBS_GPUFILE as <host>-gpu<N>; restrict CUDA and nvidia-smi to those.
+[ -z "${CUDA_VISIBLE_DEVICES:-}" ] && [ -n "${PBS_GPUFILE:-}" ] && export CUDA_VISIBLE_DEVICES=$(sed 's/.*-gpu//' $PBS_GPUFILE | sort -n | paste -sd,)
+# Free per-job port: nodes are shared with other users' servers.
+export LLM_PORT=$(python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1",0)); print(s.getsockname()[1])')
+export LLAMA_BIN=$LLM/llama.cpp/llama-b11639 BENCH_PY=$LLM/venv/bin/python
+export LD_LIBRARY_PATH=$LLAMA_BIN:$(echo $LLM/llama.cpp/cudart-*):$LLM/lib
+# Apptainer resets LD_LIBRARY_PATH inside the container; pass ours plus its --nv driver dir explicitly.
+export APPTAINERENV_LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/.singularity.d/libs
+echo "== $(hostname) job $PBS_JOBID gpus=$CUDA_VISIBLE_DEVICES port=$LLM_PORT start $(date)"
+nvidia-smi -i $CUDA_VISIBLE_DEVICES --query-gpu=index,name,memory.total --format=csv
+# Singularity 3.4.1 hangs on compute nodes, so unpack the image to node-local disk with Apptainer (as in ollama-test.pbs).
+LOCAL=/scratch/$USER/bench-${PBS_JOBID%%.*}; mkdir -p $LOCAL; trap 'rm -rf $LOCAL' EXIT
+module load apptainer/apptainer-1.1.6
+export APPTAINER_CACHEDIR=$LLM/apptainer-cache APPTAINER_TMPDIR=$LOCAL
+apptainer build --sandbox $LOCAL/py docker://python:3.12-slim-trixie > $LOCAL/build.log 2>&1 || { tail -20 $LOCAL/build.log; echo "CONTAINER BUILD FAILED"; exit 1; }
+C="apptainer exec --nv $LOCAL/py"
+$C $BENCH_PY -c 'import numpy, Bio; print("container ok")' || exit 1
+COMMON="-c 16384 -fa on --fit on --reasoning-budget 6144"
+$C $BENCH_PY -u run.py model $NAME $GGUF $COMMON 2>&1 | tee -a results/$NAME.progress
+$C $BENCH_PY run.py bench $NAME $GGUF -fa on -fitt 512
+echo "== done $(date)"

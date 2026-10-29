@@ -1,0 +1,9 @@
+# Append to ~/.ssh/config. One shared connection: many short SSH logins in a row got the client IP
+# blocked on ui-2.hpc.rtu.lv for the rest of the day during the original run.
+Host ui-1.hpc.rtu.lv ui-2.hpc.rtu.lv
+    User YOUR_HPC_USERNAME
+    ControlMaster auto
+    ControlPath ~/.ssh/cm/%r@%h:%p
+    ControlPersist 8h
+    ServerAliveInterval 60
+# mkdir -p ~/.ssh/cm  (once)

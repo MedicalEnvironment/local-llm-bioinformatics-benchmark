@@ -1,0 +1,7 @@
+#cloud-config
+# Only system packages here; the benchmark itself is copied and started over SSH (see ../README.md),
+# so the VM never needs credentials for anything.
+package_update: true
+packages:
+  - python3.12-venv
+  - curl

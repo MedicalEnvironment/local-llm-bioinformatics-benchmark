@@ -1,0 +1,15 @@
+# Model weights and runtimes are downloaded, never committed
+*.gguf
+*.gguf.part
+*.tar.gz
+*.sif
+venv/
+__pycache__/
+# Terraform state and secrets
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+.terraform.lock.hcl
+# Server logs (machine-specific)
+*.server.log

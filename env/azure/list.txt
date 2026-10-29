@@ -1,0 +1,4 @@
+unsloth/Qwen3.5-9B-GGUF Qwen3.5-9B-Q4_K_M.gguf
+unsloth/gemma-4-E4B-it-qat-GGUF gemma-4-E4B-it-qat-UD-Q4_K_XL.gguf
+ggml-org/gpt-oss-20b-GGUF gpt-oss-20b-MXFP4.gguf
+unsloth/Qwen3.5-35B-A3B-GGUF Qwen3.5-35B-A3B-Q4_K_M.gguf

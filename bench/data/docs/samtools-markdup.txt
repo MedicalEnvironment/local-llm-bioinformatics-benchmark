@@ -1,0 +1,298 @@
+
+
+	samtools-markdup(1) manual page
+
+Manual page from samtools-1.24
+released on 9 July 2026
+
+NAME
+samtools markdup – mark duplicate alignments in a coordinate sorted file
+
+SYNOPSIS
+
+samtools markdup
+[-l
+length]
+[-r]
+[-T]
+[-S]
+[-s]
+[-f
+file]
+[--json]
+[-d
+distance]
+[-c]
+[-t]
+[---duplicate-count]
+[-m]
+[--mode]
+[--include-fails]
+[--no-PG]
+[-u]
+[--no-multi-dup]
+[--read-coords]
+[--coords-order]
+[--barcode-tag]
+[--barcode-name]
+[--barcode-rgx]
+[--use-read-groups]
+in.algsort.bam out.bam
+
+DESCRIPTION
+
+Mark duplicate alignments from a coordinate sorted file that
+has been run through samtools fixmate with the -m option.  This
+program relies on the MC and ms tags that fixmate provides.
+
+Duplicates are found by using the alignment data for each read (and its mate for
+paired reads).  Position and orientation (which strand it aligns against and in
+what direction) are used to to compare the reads against one another. If two (or
+more) reads have the same values then the one with the highest base qualities is
+held to be the original and the others are the duplicates.
+
+It should be noted that samtools markdup looks for duplication first and
+then classifies the type of duplication afterwards. If your process does not
+care whether duplication is PCR or optical then it is faster if you do not use
+the optical duplicate option.
+
+Duplicates are marked by setting the alignment's DUP flag.
+
+For more details please see:
+
+<http://www.htslib.org/algorithms/duplicate.html>
+
+OPTIONS
+
+-l INT
+
+Expected maximum read length of INT bases.
+[300]
+
+-r
+
+Remove duplicate reads.
+
+-T PREFIX
+
+Write temporary files to
+PREFIX.samtools.nnnn.mmmm.tmp
+
+-S
+
+Mark supplementary reads of duplicates as duplicates.
+
+-s
+
+Print some basic stats. See STATISTICS.
+
+-f file
+
+Write stats to named file.
+
+--json
+
+Output stats in JSON format.
+
+-d distance
+
+The optical duplicate distance.  Suggested settings of 100 for HiSeq style
+platforms or about 2500 for NovaSeq ones.  Default is 0 to not look for
+optical duplicates.  When set, duplicate reads are tagged with dt:Z:SQ for
+optical duplicates and dt:Z:LB otherwise.  Calculation of distance depends
+on coordinate data embedded in the read names produced by the Illumina
+sequencing machines.  Optical duplicate detection will not work on non standard
+names without the use of --read-coords.
+
+-c
+
+Clear previous duplicate settings and tags.
+
+-t
+
+Mark duplicates with the name of the original in a do tag.
+
+--duplicate-count
+
+Record the original primary read duplication count (including itself) in a
+dc tag.
+
+-m, --mode TYPE
+
+Duplicate decision method for paired reads.  Values are t or s.
+Mode t measures positions based on template start/end (default).
+Mode s measures positions based on sequence start.
+While the two methods identify mostly the same reads as duplicates, mode 
+s tends to return more results.  Unpaired reads are treated identically
+by both modes.
+
+-u
+
+Output uncompressed SAM, BAM or CRAM.
+
+--include-fails
+
+Include quality checked failed reads.
+
+--no-multi-dup
+
+Stop checking duplicates of duplicates for correctness.  While still marking
+reads as duplicates further checks to make sure all optical duplicates are found
+are not carried out.  Also operates on -t tagging where reads may tagged
+with a better quality read but not necessarily the best one.  Using this option
+can speed up duplicate marking when there are a great many duplicates for each
+original read. 
+
+--read-coords REGEX
+
+This takes a POSIX regular expression for at least x and y to be used in
+optical duplicate marking It can also include another part of the read name
+to test for equality, eg lane:tile elements. Elements wanted are captured with
+parentheses.  Examples below.
+
+--coords-order ORDER
+
+The order of the elements captured in the regular expression. Default is txy
+where t is a part of the read name selected for string comparison and x/y the
+coordinates used for optical duplicate detection.  Valid orders are: txy, tyx,
+xyt, yxt, xty, ytx, xy and yx.
+
+--barcode-tag TAG
+
+Duplicates must now also match the barcode tag.
+
+--barcode-name
+
+Use the UMI/barcode embedded in the read name (eigth colon delimited part).
+
+--barcode-rgx REGEX
+
+Regex for barcode in the readname (alternative to --barcode-name).
+
+--move-umi-to-tag
+
+Move UMI from read name to RX tag (use with --barcode-name or --barcode-rgx).
+
+--umi-separator CHAR
+
+Character to use as separator for the UMI in the read name (default is ':'). If the UMI is at the end or beginning of the read name, the adjacent separator is removed. If the UMI is in the middle of the read name, it and one adjacent separator are removed, merging the remaining parts.
+
+--use-read-groups
+
+The @RG tags must now also match to be a duplicate.
+
+--no-PG
+
+Do not add a PG line to the output file.
+
+-@, --threads INT
+
+Number of input/output compression threads to use in addition to main thread [0].
+
+STATISTICS
+Entries are:
+
+COMMAND: the command line.
+
+READ: number of reads read in.
+
+WRITTEN: reads written out.
+
+EXCLUDED: reads ignored.  See below.
+
+EXAMINED: reads examined for duplication.
+
+PAIRED: reads that are part of a pair.
+
+SINGLE: reads that are not part of a pair.
+
+DUPLICATE PAIR: reads in a duplicate pair.
+
+DUPLICATE SINGLE: single read duplicates.
+
+DUPLICATE PAIR OPTICAL: optical duplicate paired reads.
+
+DUPLICATE SINGLE OPTICAL: optical duplicate single reads.
+
+DUPLICATE NON PRIMARY: supplementary/secondary duplicate reads.
+
+DUPLICATE NON PRIMARY OPTICAL: supplementary/secondary optical
+duplicate reads.
+
+DUPLICATE PRIMARY TOTAL: number of primary duplicate reads.
+
+DUPLICATE TOTAL: total number of duplicate reads.
+
+ESTIMATED LIBRARY SIZE: estimate of the number of unique fragments in the
+sequencing library.
+
+Estimated library size makes various assumptions e.g. the library consists of
+unique fragments that are randomly selected (with replacement) with equal
+probability.
+This is unlikely to be true in practice.
+However it can provide a useful guide into how many unique read pairs are likely 
+to be available.
+In particular it can be used to determine how much more data might be obtained
+by further sequencing of the library.
+
+Excluded reads are those marked as secondary, supplementary or unmapped.
+By default QC failed reads are also excluded but can be included as an option.
+Excluded reads are not used for calculating duplicates.
+They can optionally be marked as duplicates if they have a primary that is also
+a duplicate.    
+
+EXAMPLES
+This first collate command can be omitted if the file is already name ordered or collated:
+
+samtools collate -o namecollate.bam example.bam
+
+Add ms and MC tags for markdup to use later:
+
+samtools fixmate -m namecollate.bam fixmate.bam
+
+Markdup needs position order:
+
+samtools sort -o positionsort.bam fixmate.bam
+
+Finally mark duplicates:
+
+samtools markdup positionsort.bam markdup.bam
+
+Typically the fixmate step would be applied immediately after sequence
+alignment and the markdup step after sorting by chromosome and
+position.  Thus no additional sort steps are normally needed.
+
+To use the regex to obtain coordinates from reads, two or three values have to
+be captured.  To mimic the normal behaviour and match a read name of the format
+machine:run:flowcell:lane:tile:x:y use:
+
+--read-coords '([!-9;-?A-~]+:[0-9]+:[0-9]+:[0-9]+:[0-9]+):([0-9]+):([0-9]+)'
+--coords-order txy
+
+To match only the coordinates of x:y:randomstuff use:
+
+--read-coords '^([[:digit:]]+):([[:digit:]]+)'
+--coords-order xy
+
+To use a barcode from the read name matching the Illumina example of
+NDX550136:7:H2MTNBDXX:1:13302:3141:10799:AAGGATG+TCGGAGA use:
+
+--barcode-rgx '[0-9A-Za-z]+:[0-9]+:[0-9A-Za-z]+:[0-9]+:[0-9]+:[0-9]+:[0-9]+:([!-?A-~]+)'
+
+It is possible that complex regular expressions may slow the running of the
+program.  It would be best to keep them simple. 
+
+AUTHOR
+
+Written by Andrew Whitwham from the Sanger Institute.
+
+SEE ALSO
+samtools (1),
+samtools-sort (1),
+samtools-collate (1),
+samtools-fixmate (1)
+
+Samtools website: <http://www.htslib.org/>
+
+		Copyright © 2025 Genome Research Limited (reg no. 2742969) is a charity registered in England with number 1021457. Terms and conditions.
+
