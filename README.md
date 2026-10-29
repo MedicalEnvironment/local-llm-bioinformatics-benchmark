@@ -43,7 +43,7 @@ needs basic Linux shell use; the Azure and HPC guides also assume SSH, and Terra
 
 ## What was tested
 
-| | |
+| Aspect | Details |
 | --- | --- |
 | **Models** | Qwen3.5-122B-A10B, Qwen3.5-35B-A3B, gpt-oss-20b, Qwen3.5-9B, Gemma-4-E4B (4-bit files, 4–77 GB) |
 | **Machines** | Laptop (RTX 4060, 8 GB GPU memory) · Azure VM (Tesla T4, 16 GB) · RTU HPC nodes (1–2× NVIDIA L40S, 48 GB each) |
