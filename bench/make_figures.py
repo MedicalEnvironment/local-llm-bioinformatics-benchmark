@@ -30,11 +30,16 @@ for rid, model, machine in RUNS:
     data.append(dict(model=model, machine=machine, sec=sec, total=sum(sec.values()), tps=tps))
 
 
-def svg(w, h, body, title, card=False, pad=24):
-    """card=True draws the figure on its own opaque white card, so it stays readable whatever theme the page uses
-    (GitHub's theme is not visible to images; prefers-color-scheme follows the OS, which can differ)."""
+CARD = {"light": ("#ffffff", "#d0d7de"), "dark": ("#0d1117", "#30363d")}  # GitHub's own page and border colours
+
+
+def svg(w, h, body, title, card=None, pad=24):
+    """card="light"/"dark" draws the figure on an opaque card in that theme's colours. The README shows the matching
+    file with GitHub's #gh-light-mode-only / #gh-dark-mode-only markers, which follow GitHub's theme setting
+    (unlike prefers-color-scheme, which follows the operating system)."""
     if card:
-        bg = (f'<rect x="0.5" y="0.5" width="{w + 2 * pad - 1}" height="{h + 2 * pad - 1}" rx="12" fill="#ffffff" stroke="#d0d7de"/>'
+        fill, edge = CARD[card]
+        bg = (f'<rect x="0.5" y="0.5" width="{w + 2 * pad - 1}" height="{h + 2 * pad - 1}" rx="12" fill="{fill}" stroke="{edge}"/>'
               f'<g transform="translate({pad},{pad})">{body}</g>')
         w, h, body = w + 2 * pad, h + 2 * pad, bg
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" '
@@ -79,7 +84,7 @@ def stacked(mode):
                 b.append(f'<text x="{x + w / 2:.1f}" y="{y + 15.5}" font-size="11.5" font-weight="600" fill="{ink}" text-anchor="middle">{v}</text>')
             x += v * scale
         b.append(f'<text x="{x + 8:.1f}" y="{y + 16}" font-size="14" font-weight="700" fill="{t["text"]}">{d["total"]}</text>')
-    return svg(W, H, "".join(b), "Benchmark score by section for each run", card=True)
+    return svg(W, H, "".join(b), "Benchmark score by section for each run", card=mode)
 
 
 def scatter(mode):
@@ -104,7 +109,7 @@ def scatter(mode):
         b.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="6" fill="{t["dot"]}" stroke="{t["surface"]}" stroke-width="2"/>')
         b.append(f'<text x="{cx + dx:.1f}" y="{cy + dy:.1f}" font-size="12.5" font-weight="600" fill="{t["text"]}" text-anchor="{a}">{escape(d["model"])}'
                  f'<tspan font-weight="400" fill="{t["text2"]}"> · {escape(d["machine"])}</tspan></text>')
-    return svg(W, H, "".join(b), "Total score against generation speed for each run", card=True)
+    return svg(W, H, "".join(b), "Total score against generation speed for each run", card=mode)
 
 
 def badge(label, value, mode):
@@ -119,9 +124,10 @@ def badge(label, value, mode):
 
 BADGES = [("licence", "MIT"), ("models", "5 open-weights"), ("runs", "8 on 3 machines"), ("items", "53 auto-scored"),
           ("data", "public NCBI + synthetic"), ("inference", "llama.cpp b11639")]
-# One theme-proof file per figure: charts on a white card, badges with their own solid background.
-(OUT / "scores.svg").write_text(stacked("light"))
-(OUT / "accuracy-vs-speed.svg").write_text(scatter("light"))
+# Charts: one file per GitHub theme. Badges carry their own solid background, so one file serves both.
+for mode in ("light", "dark"):
+    (OUT / f"scores-{mode}.svg").write_text(stacked(mode))
+    (OUT / f"accuracy-vs-speed-{mode}.svg").write_text(scatter(mode))
 for k, v in BADGES:
     (OUT / f"badge-{k}.svg").write_text(badge(k, v, "light"))
 print("figures written to", OUT)

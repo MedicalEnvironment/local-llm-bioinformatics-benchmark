@@ -16,7 +16,7 @@ A reproducible benchmark on a laptop, an Azure GPU and the RTU HPC cluster.</p>
 <a href="#rerunning">Rerun it</a>
 </p>
 
-<p align="center"><img src="docs/figures/scores.svg" alt="Stacked bar chart of each run's score by section, out of 53. Qwen3.5-122B on 2× L40S and Qwen3.5-35B on a T4 both score 50; Gemma-4-E4B on a laptop scores 37."></p>
+<p align="center"><img src="docs/figures/scores-light.svg#gh-light-mode-only" alt="Stacked bar chart of each run's score by section, out of 53. Qwen3.5-122B on 2× L40S and Qwen3.5-35B on a T4 both score 50; Gemma-4-E4B on a laptop scores 37."><img src="docs/figures/scores-dark.svg#gh-dark-mode-only" alt="Stacked bar chart of each run's score by section, out of 53. Qwen3.5-122B on 2× L40S and Qwen3.5-35B on a T4 both score 50; Gemma-4-E4B on a laptop scores 37."></p>
 
 > **In short.** Five open-source models answered the same 53 bioinformatics tasks (write a script, do a lab
 > calculation, recall a tool option or gene location), and every answer was checked automatically against keys
@@ -77,7 +77,7 @@ What this means:
 - **Hardware changed speed far more than quality**: the same 9B model scored 43–46 on three machines, a spread consistent with run-to-run noise.
 - **A 35B "mixture-of-experts" model on one 16 GB GPU had the same total (50/53) as the 122B model** in this single run, although only the 122B passed every script.
 
-<p align="center"><img src="docs/figures/accuracy-vs-speed.svg" alt="Scatter of total score against generation speed for each run. The 122B and 35B models score highest; the 9B on an L40S is fastest at about 82 tokens per second."></p>
+<p align="center"><img src="docs/figures/accuracy-vs-speed-light.svg#gh-light-mode-only" alt="Scatter of total score against generation speed for each run. The 122B and 35B models score highest; the 9B on an L40S is fastest at about 82 tokens per second."><img src="docs/figures/accuracy-vs-speed-dark.svg#gh-dark-mode-only" alt="Scatter of total score against generation speed for each run. The 122B and 35B models score highest; the 9B on an L40S is fastest at about 82 tokens per second."></p>
 
 ## How correctness was decided
 
