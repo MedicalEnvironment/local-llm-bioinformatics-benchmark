@@ -1,6 +1,6 @@
 # Local and private LLMs for bioinformatics: a three-environment benchmark
 
-> **In short.** We gave five open-source AI models the same 53 bioinformatics tasks (write a script, do a lab calculation, recall a tool option or gene location) on a laptop, an Azure GPU and the RTU HPC, and checked every answer automatically against keys fixed in advance. The largest model (Qwen3.5-122B, HPC) got every script right and scored 50/53; a mid-size model on one cloud GPU also scored 50/53. Smaller models often wrote scripts that ran but printed wrong numbers. Giving any model the relevant documentation fixed nearly all factual errors. No data left our own machines.
+> **In short.** We gave five open-source AI models the same 53 bioinformatics tasks (write a script, do a lab calculation, recall a tool option or gene location) on a laptop, an Azure GPU and the RTU HPC, and checked every answer automatically against keys fixed in advance. The largest model (Qwen3.5-122B, HPC) got every script right and scored 50/53; a mid-size model on one cloud GPU also scored 50/53. Smaller models often wrote scripts that ran but printed wrong numbers. Giving the models the relevant documentation fixed nearly all factual errors. Each item was asked once, so small score differences are within noise. No data left our own machines.
 
 Can open-source AI language models (LLMs), running only on hardware we control, write correct
 bioinformatics scripts, solve lab calculations and answer questions about tools and genes, without
@@ -40,7 +40,7 @@ synthetic files generated from them; no patient or private data were used.
 
 29 October 2026; 53 items per run; each item asked once.
 
-| Model | Machine | Scripting /7 | Calculations /10 | Facts from memory /18 | Facts with docs (RAG) /18 | Total /53 | Speed (tokens/s) |
+| Model | Machine | Scripting /7 | Calculations /10 | Facts from memory /18 | Facts with docs (RAG) /18 | Total /53 | Speed (tokens/s)† |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Qwen3.5-122B-A10B | RTU HPC, 2x L40S | 7 | 10 | 15 | 18 | **50** | 55 |
 | Qwen3.5-35B-A3B | Azure, 1x T4 | 6 | 10 | 16 | 18 | **50** | 43 |
@@ -48,18 +48,19 @@ synthetic files generated from them; no patient or private data were used.
 | Qwen3.5-9B | RTU HPC, 1x L40S | 6 | 9 | 13 | 18 | 46 | 82 |
 | Qwen3.5-9B | Azure, 1x T4 | 5 | 10 | 13 | 18 | 46 | 29 |
 | Qwen3.5-9B | Laptop | 5 | 9 | 13 | 16* | 43 | 41 |
-| Gemma-4-E4B | Azure, 1x T4 | 5 | 8 | 10 | 17 | 40 | 58 |
+| Gemma-4-E4B | Azure, 1x T4 | 5 | 8 | 10 | 18 | 41 | 58 |
 | Gemma-4-E4B | Laptop | 3 | 9 | 7 | 18 | 37 | 68 |
 
-\* The laptop runs used an older 4,096-token answer limit, which cut off four answers before they finished.
+\* The laptop runs used an older 4,096-token limit on fact answers. It cut off four of the 9B model's answers before they finished (two from memory, two with docs); every miss in this cell is one of those.
+† Median generation speed during the benchmark run. Raw speed tests (`llama-bench`) are in the report.
 
 What this means:
 
 - **Only the largest model wrote every script correctly.** Most failed scripts did not crash; they ran and
   printed a plausible but wrong number. Generated code must be tested on data with a known answer.
-- **Giving the model the documentation (RAG) fixes most factual errors**: every model scored 17–18/18.
-- **Hardware changes speed, not quality**: the same 9B model scored 43–46 on all three machines.
-- **A 35B "mixture-of-experts" model on one 16 GB GPU matched the 122B model's total score.**
+- **Giving the model the documentation (RAG) fixed nearly all factual errors**: every run scored 18/18, except the laptop 9B run, whose two misses were answers cut off by the older length limit. The gene questions are easy in this form, because the pasted passage states the answer; see the report's limitations.
+- **Hardware changed speed far more than quality**: the same 9B model scored 43–46 on three machines, a spread consistent with run-to-run noise.
+- **A 35B "mixture-of-experts" model on one 16 GB GPU had the same total (50/53) as the 122B model** in this single run, although only the 122B passed every script.
 
 ## How correctness was decided
 
@@ -73,12 +74,23 @@ ran, from primary sources or our own reference code, and a program compared each
 | Facts: gene locations | A final line `ANSWER: <band>` | Must contain the exact NCBI band, e.g. `11p15.4` | NCBI Gene `maplocation` field (`bench/data/raw/gene_summaries.json`) |
 | Facts: tool options | A final line `ANSWER: <option>` | Must contain the option; short or long form accepted (`-s` or `--by-seq`) | The official manuals in `bench/data/docs/` |
 
-The scorer is deliberately strict: only the final `ANSWER:` line counts, so a correct explanation with a
-wrong final line fails. After the runs, every failure was inspected by hand. One correct answer failed only
-on formatting (`Answer:` instead of `ANSWER:`, gpt-oss-20b), and the TNF location answer 6p21.3 was scored
-wrong because the question asked for the more specific sub-band (6p21.33). Both are noted in the report, so
-scores are, if anything, slight underestimates. With one run per item, differences of 1–2 points between
-models can be chance.
+Only the final `ANSWER:` line counts, so a correct explanation with a wrong final line fails. After the runs,
+every failure was inspected by hand, and an independent cold review re-derived every answer key from the raw
+files. Three scoring issues were found:
+
+1. **An answer key was incomplete (corrected).** `samtools sort` sorts by read name with `-n` and also with `-N`
+   (lexicographic). The key first accepted only `-n`; it now accepts both, and all stored answers were rescored with
+   `bench/rescore.py`. This changed one item (Gemma-4-E4B on Azure, 40 to 41). Changed items keep their earlier score
+   as `ok_before_rescore`.
+2. **A correct answer in the wrong format (not changed).** gpt-oss-20b gave CFTR 7q31.2 correctly but wrote `Answer:`
+   instead of `ANSWER:`; with a case-insensitive parser it would score 49.
+3. **Arguable answers (not changed).** Both Gemma runs selected SNPs with `-i 'TYPE="snp"'`, a valid bcftools filter
+   expression, rather than the `-v snps` option the question asks for. Several models gave TNF as 6p21.3 rather
+   than the requested sub-band 6p21.33.
+
+The scorer is also lenient in one way: an accepted option anywhere on the final line passes, so a hedged answer
+naming several options would pass too. With one run per item, differences of 1–2 points between models can be
+chance.
 
 The exact scoring code is `score_script`, `score_reason` and `score_retr` in [bench/tasks.py](bench/tasks.py).
 
@@ -86,6 +98,7 @@ The exact scoring code is `score_script`, `score_reason` and `score_retr` in [be
 
 | Term | Meaning |
 | --- | --- |
+| Section names | Scripting = `script`; Calculations = reasoning = `reason`; Facts from memory = closed-book = `closed`; Facts with docs = RAG = `rag` (the second name is used in the report, the third in result files). |
 | LLM | Large language model: the AI model that reads a prompt and writes an answer. |
 | Open-weights model | A model whose files can be downloaded and run on your own hardware, so prompts and data never leave it. |
 | Parameters (e.g. 9B, 122B) | The model's learned numbers, in billions. More parameters usually means more knowledge and more memory needed. |

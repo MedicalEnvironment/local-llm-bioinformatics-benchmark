@@ -298,7 +298,8 @@
    "gen_tokens": 526,
    "tg_tps": 55.941373440634216,
    "pp_tps": 1770.248799169751,
-   "ok": false
+   "ok": true,
+   "ok_before_rescore": false
   },
   "closed:markdup_rm": {
    "content": "The `samtools markdup` command does not have an option to remove duplicate reads; its function is strictly to mark them by adding the MD flag. To remove duplicates, you typically use `samtools sort` with the `-d` flag.\n\nANSWER: None (The function is not available in samtools markdup)",

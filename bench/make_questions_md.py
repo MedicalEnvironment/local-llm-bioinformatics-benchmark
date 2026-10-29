@@ -21,7 +21,7 @@ def key(tid):
 
 # Accepted answers in words; the exact regular expression from tasks.py is shown beside it.
 ACCEPT = {"sam_mapq": "-q or --min-MQ", "sam_reqflag": "-f or --require-flags", "sam_threads": "-@ or --threads",
-          "sam_byname": "-n", "markdup_rm": "-r or --remove", "depth_all": "-a or -aa", "bcf_snps": "-v snps or --types snps",
+          "sam_byname": "-n or -N", "markdup_rm": "-r or --remove", "depth_all": "-a or -aa", "bcf_snps": "-v snps or --types snps",
           "bcf_norm": "norm", "seqkit_rmdup": "-s or --by-seq", "seqkit_stats": "stats"}
 
 L = ["# The 53 benchmark items and how each was scored", "",

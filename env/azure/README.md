@@ -63,7 +63,7 @@ The queue runs Qwen3.5-9B, Gemma-4-E4B, gpt-oss-20b and Qwen3.5-35B-A3B (about 3
 ## 3. Collect results and delete everything
 
 ```bash
-ssh $VM 'tar czf - -C ~/llm/bench/results .' | tar xzf - -C bench/results
+mkdir -p my-results && ssh $VM 'tar czf - -C ~/llm/bench/results .' | tar xzf - -C my-results   # keeps the committed results intact
 terraform destroy        # or: az group delete -n rg-llm-bench-neu --yes
 ```
 

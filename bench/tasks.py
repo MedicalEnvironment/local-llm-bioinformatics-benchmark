@@ -105,7 +105,7 @@ RETR_TASKS = [
     ("sam_mapq", "In `samtools view`, which option skips alignments with MAPQ below a given value?", r"(^|[\s`])-q\b|--min-MQ"),
     ("sam_reqflag", "In `samtools view`, which option outputs only alignments that have all bits of a given FLAG set?", r"(^|[\s`])-f\b|--require-flags"),
     ("sam_threads", "In `samtools sort`, which option sets the number of additional threads?", r"-@|--threads"),
-    ("sam_byname", "In `samtools sort`, which option sorts by read name instead of coordinate?", r"(^|[\s`])-n\b"),
+    ("sam_byname", "In `samtools sort`, which option sorts by read name instead of coordinate?", r"(^|[\s`])-[nN]\b"),  # -N (lexicographic) is also documented
     ("markdup_rm", "In `samtools markdup`, which option removes duplicate reads instead of just marking them?", r"(^|[\s`])-r\b|--remove"),
     ("depth_all", "In `samtools depth`, which option outputs all positions, including those with zero depth?", r"(^|[\s`])-aa?\b"),
     ("bcf_snps", "With `bcftools view`, which option and value select only SNPs?", r"-v\s*snps|--types[ =]snps"),

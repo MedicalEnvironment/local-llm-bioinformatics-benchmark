@@ -66,7 +66,7 @@ Run columns: model and machine (HPC = RTU HPC L40S, T4 = Azure Tesla T4, laptop 
 | sam_mapq | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 8/8 |
 | sam_reqflag | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 8/8 |
 | sam_threads | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 8/8 |
-| sam_byname | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ | 7/8 |
+| sam_byname | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 8/8 |
 | markdup_rm | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 8/8 |
 | depth_all | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 8/8 |
 | bcf_snps | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ cut off | ✓ | ✓ | 7/8 |
@@ -81,10 +81,10 @@ Run columns: model and machine (HPC = RTU HPC L40S, T4 = Azure Tesla T4, laptop 
 | loc_BRAF | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 8/8 |
 | loc_EGFR | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 8/8 |
 | loc_TNF | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 8/8 |
-| **Section total** | **18** | **18** | **18** | **18** | **18** | **16** | **17** | **18** | |
+| **Section total** | **18** | **18** | **18** | **18** | **18** | **16** | **18** | **18** | |
 
 ## Overall
 
 | | 122B HPC | 35B T4 | gpt-oss-20b T4 | 9B HPC | 9B T4 | 9B laptop | Gemma-E4B T4 | Gemma-E4B laptop |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **Total /53** | **50** | **50** | **48** | **46** | **46** | **43** | **40** | **37** |
+| **Total /53** | **50** | **50** | **48** | **46** | **46** | **43** | **41** | **37** |

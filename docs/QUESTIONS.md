@@ -42,7 +42,7 @@ Asked once from memory (closed-book) and once with the five best-matching docume
 | sam_mapq | In `samtools view`, which option skips alignments with MAPQ below a given value? | -q or --min-MQ | Tool manual in `bench/data/docs/` | `` (^\|[\s`])-q\b\|--min-MQ `` |
 | sam_reqflag | In `samtools view`, which option outputs only alignments that have all bits of a given FLAG set? | -f or --require-flags | Tool manual in `bench/data/docs/` | `` (^\|[\s`])-f\b\|--require-flags `` |
 | sam_threads | In `samtools sort`, which option sets the number of additional threads? | -@ or --threads | Tool manual in `bench/data/docs/` | `` -@\|--threads `` |
-| sam_byname | In `samtools sort`, which option sorts by read name instead of coordinate? | -n | Tool manual in `bench/data/docs/` | `` (^\|[\s`])-n\b `` |
+| sam_byname | In `samtools sort`, which option sorts by read name instead of coordinate? | -n or -N | Tool manual in `bench/data/docs/` | `` (^\|[\s`])-[nN]\b `` |
 | markdup_rm | In `samtools markdup`, which option removes duplicate reads instead of just marking them? | -r or --remove | Tool manual in `bench/data/docs/` | `` (^\|[\s`])-r\b\|--remove `` |
 | depth_all | In `samtools depth`, which option outputs all positions, including those with zero depth? | -a or -aa | Tool manual in `bench/data/docs/` | `` (^\|[\s`])-aa?\b `` |
 | bcf_snps | With `bcftools view`, which option and value select only SNPs? | -v snps or --types snps | Tool manual in `bench/data/docs/` | `` -v\s*snps\|--types[ =]snps `` |

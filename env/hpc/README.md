@@ -22,8 +22,8 @@ for CUDA 12.8 code: use the L40S nodes, or build llama.cpp against CUDA 12.4.
 
 1. **SSH.** Add `ssh_config.example` to `~/.ssh/config` (shared connection), copy your key with
    `ssh-copy-id`, and verify the host key fingerprint with hpc@rtu.lv before accepting it.
-2. **Copy the repo** to the cluster: `scp -r comprehensive_llm_run ui-1.hpc.rtu.lv:`.
-3. **Set up** (login node, about 5 minutes): `bash comprehensive_llm_run/env/hpc/setup_hpc.sh`.
+2. **Copy the repo** to the cluster: `scp -r comperehensive_llm_run ui-1.hpc.rtu.lv:`.
+3. **Set up** (login node, about 5 minutes): `bash comperehensive_llm_run/env/hpc/setup_hpc.sh`.
 4. **Download models** (about 180 GB for all of `list.txt`; reorder the list to get the one you need first):
    `setsid nohup bash ~/llm/fetch_models.sh > ~/llm/fetch.log 2>&1 < /dev/null &`.
    If a download slows to a crawl, kill its `curl` process; the loop resumes with a fresh connection.

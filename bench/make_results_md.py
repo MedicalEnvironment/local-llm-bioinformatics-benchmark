@@ -79,7 +79,8 @@ E += ["## 5. Documentation fixes recall: the same question with and without RAG 
 v = it("t4-gpt-oss-20b", "closed:loc_CFTR")
 E += ["## 6. A scoring artefact: right answer, wrong format (gpt-oss-20b, Azure)", "",
       "The scorer only reads a final line that starts with exactly `ANSWER:`. This answer is correct (CFTR is at 7q31.2) "
-      "but wrote `Answer:`, so it was scored as wrong. It is the only such case found when every failure was checked by hand.", "",
+      "but wrote `Answer:`, so it was scored as wrong. It is one of three scoring issues found when every failure was checked by hand; "
+      "all three are listed in the README under How correctness was decided.", "",
       block(v["content"].strip()[-300:]), ""]
 (D / "EXAMPLES.md").write_text("\n".join(E) + "\n")
 print("ok")

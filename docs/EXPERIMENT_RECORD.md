@@ -8,11 +8,12 @@ What was done, when, with which versions, and the exact commands used to obtain 
 | Date (2026) | Step |
 | --- | --- |
 | 15 Oct | Laptop set up: llama.cpp b11639 (CUDA 12.8 build), Python venv. Benchmark designed (`tasks.py`), data downloaded and frozen, synthetic files and answer keys generated (`make_data.py`), RAG index built with EmbeddingGemma-300M (`run.py embed`). |
-| 15 Oct | Laptop runs: `laptop-qwen3.5-9b` and `laptop-gemma4-e4b` (originally named without the `laptop-` prefix; renamed for clarity) (53 items each; retrieval output limit 4,096 tokens at the time). A `gemma4-12b` run was stopped after 2 items (13 tokens/s, CPU offload) and is excluded. |
+| 15 Oct | Laptop runs (made with the `run.py` of that day: same prompts and scorers, before the 29 Oct portability changes, which only added path, port and multi-GPU options): `laptop-qwen3.5-9b` and `laptop-gemma4-e4b` (originally named without the `laptop-` prefix; renamed for clarity) (53 items each; retrieval output limit 4,096 tokens at the time). A `gemma4-12b` run was stopped after 2 items (13 tokens/s, CPU offload) and is excluded. |
 | 15 Oct | Retrieval output limit raised to 8,192 tokens in `run.py` for all later runs. |
 | 29 Oct | Azure: resource group `rg-llm-bench-neu` (North Europe). NC16as/NC8as T4 sizes failed with AllocationFailed in all zones; NC4as_T4_v3 created. Runs `t4-qwen3.5-9b`, `t4-gemma4-e4b`, `t4-gpt-oss-20b`, `t4-qwen3.5-35b-a3b`, then `llama-bench` for each. |
 | 29 Oct | RTU HPC: harness ported (`LLAMA_BIN`, `LLM_PORT`, multi-GPU VRAM accounting), container approach set up. First jobs on wn74 hung (Singularity); switched to Apptainer sandbox on `/scratch`, fixed `APPTAINERENV_LD_LIBRARY_PATH`. Runs `hpc-qwen3.5-9b` (wn73, 1x L40S) and `hpc-qwen3.5-122b-a10b` (wn75, 2x L40S), each followed by `llama-bench`. |
 | 29 Oct | Results collected, `summary.csv` generated, report written. Azure resource group deleted after the run. |
+| 29 Oct | Independent cold review of the repository re-derived every answer key from the raw files. It found the `samtools sort` read-name key accepted only `-n`, although the manual also documents `-N`. Key corrected in `tasks.py`; all stored answers rescored with `bench/rescore.py` (no answers regenerated). One item changed: `t4-gemma4-e4b` `rag:sam_byname`, total 40 to 41; its earlier score is kept as `ok_before_rescore`. All other items, including every script output, rescored identically. |
 
 ## Exact data download commands (15 Oct 2026)
 
@@ -42,12 +43,13 @@ change over time; the committed files and `MANIFEST.sha256` are the frozen versi
 | --- | --- | --- |
 | llama.cpp | b11639, commit a0e6dc738, `llama-b11639-bin-ubuntu-cuda-12.8-x64.tar.gz` + cudart tarball from GitHub releases | SHA-256 in `env/laptop/llama_sums.txt` |
 | Model files | Hugging Face repos listed in `env/*/list.txt` | SHA-256 in `env/*/sums.txt` (Hugging Face LFS hashes) |
+| Embedding model (RAG index only) | `ggml-org/embeddinggemma-300M-GGUF`, `embeddinggemma-300M-Q8_0.gguf` | SHA-256 `b5ce9d77a3fc4b3b39ccb5643c36777911cc4eb46a66962eadfa3f5f60490d63` |
 | HPC container | `docker://python:3.12-slim-trixie` (Debian 13, glibc 2.41, Python 3.12.16) | Official Docker Hub image |
 | HPC libgomp | Debian trixie `libgomp1_14.2.0-19_amd64.deb` | SHA-256 from the Debian Packages index (`env/hpc/getgomp.py`) |
 | Apptainer / Singularity (HPC) | Apptainer 1.1.6 (jobs), Singularity 3.4.1 (login-node setup) | Cluster modules |
 | Azure image | `microsoft-dsvm:ubuntu-hpc:2404:latest` (NVIDIA driver 580.178) | Marketplace |
 | HPC driver | NVIDIA 550.54.15 | `pbsnodes` |
-| Python libraries | numpy, pandas, biopython (latest from PyPI on each machine at setup time) | |
+| Python libraries | Not pinned at install time. Recorded afterwards: laptop Python 3.14.4, numpy 2.5.4, pandas 3.0.6, biopython 1.88; HPC Python 3.12.16, numpy 2.5.4, pandas 3.1.0, biopython 1.88; Azure (VM since deleted) installed the same day from PyPI | |
 
 ## Run settings (all runs)
 

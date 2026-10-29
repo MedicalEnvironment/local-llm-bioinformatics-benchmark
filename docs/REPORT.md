@@ -4,11 +4,11 @@
 
 ## Summary
 
-Open-weights LLMs running entirely on hardware we control can already write correct bioinformatics scripts, solve lab calculations and answer documentation questions; model size is what separates "usually right" from "reliably right". Across nine benchmark runs (six models, three machines, 53 scored items each), the best two models scored **50/53**: Qwen3.5-122B-A10B on two RTU HPC L40S GPUs and Qwen3.5-35B-A3B on a single 16 GB Azure T4.
+Open-weights LLMs running entirely on hardware we control can already write correct bioinformatics scripts, solve lab calculations and answer documentation questions; model size is what separates "usually right" from "reliably right". Across eight benchmark runs (five models, three machines, 53 scored items each), the best two models scored **50/53**: Qwen3.5-122B-A10B on two RTU HPC L40S GPUs and Qwen3.5-35B-A3B on a single 16 GB Azure T4.
 
 - **Scripting is where size pays off.** Only Qwen3.5-122B-A10B passed all 7 executed scripts. Every smaller model produced at least one script that ran cleanly but printed a wrong answer (off-by-one coordinates, wrong VCF column, invented API).
-- **Retrieval-augmented generation (RAG) closes the knowledge gap.** With the relevant documentation pasted into the prompt, every model scored 17–18/18. Without it (closed-book), scores ranged from 7/18 to 16/18.
-- **Hardware sets speed, not answers.** Qwen3.5-9B scored 43–46/53 on all three machines; generation speed ranged from 29 tokens/s (Azure T4) to 82 tokens/s (HPC L40S).
+- **Retrieval-augmented generation (RAG) closes the knowledge gap.** With the relevant documentation pasted into the prompt, every run scored 18/18 except one whose two misses were answers cut off by a length limit. Without it (closed-book), scores ranged from 7/18 to 16/18.
+- **Hardware sets speed far more than answers.** Qwen3.5-9B scored 43–46/53 on all three machines, a spread consistent with run-to-run noise; generation speed ranged from 29 tokens/s (Azure T4) to 82 tokens/s (HPC L40S).
 - **Mixture-of-experts (MoE) models are the practical sweet spot.** Qwen3.5-35B-A3B and gpt-oss-20b activate only ~3–4 B parameters per token, so they run at 43–55 tokens/s on a 16 GB GPU while scoring 48–50/53.
 
 Recommendation: use a MoE model of 20–35 B total parameters for day-to-day scripting help, pair any model with RAG over our own documentation, and always test generated scripts on data with a known answer. The RTU HPC can serve a 120 B-class model privately when maximum accuracy is needed.
@@ -131,7 +131,7 @@ The same benchmark code, llama.cpp build (b11639) and data ran on three machines
 
 ## Results
 
-Two models tied for the top score of 50/53: Qwen3.5-122B-A10B (HPC, 2× L40S) and Qwen3.5-35B-A3B (Azure, one T4). The same Qwen3.5-9B model scored 43–46 on every machine, so hardware changed speed but not quality.
+Two models tied for the top score of 50/53: Qwen3.5-122B-A10B (HPC, 2× L40S) and Qwen3.5-35B-A3B (Azure, one T4). The same Qwen3.5-9B model scored 43–46 on every machine, a spread consistent with run-to-run noise, while its speed varied almost threefold.
 
 | Run | Machine | Scripting /7 | Reasoning /10 | Closed-book /18 | RAG /18 | **Total /53** | Speed in run (tokens/s) | Peak VRAM | Time for 53 items |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -141,10 +141,12 @@ Two models tied for the top score of 50/53: Qwen3.5-122B-A10B (HPC, 2× L40S) an
 | Qwen3.5-9B | HPC 1× L40S | 6 | 9 | 13 | **18** | 46 | 82 | 6.1 GB | 28 min |
 | Qwen3.5-9B | Azure T4 | 5 | **10** | 13 | **18** | 46 | 29 | 5.7 GB | 82 min |
 | Qwen3.5-9B | Laptop | 5 | 9 | 13 | 16¹ | 43 | 41 | 6.6 GB | 50 min |
-| Gemma-4-E4B | Azure T4 | 5 | 8 | 10 | 17 | 40 | 58 | 3.1 GB | 10 min |
+| Gemma-4-E4B | Azure T4 | 5 | 8 | 10 | **18** | 41 | 58 | 3.1 GB | 10 min |
 | Gemma-4-E4B | Laptop | 3 | 9 | 7 | **18** | 37 | 68 | 3.8 GB | 10 min |
 
-¹ The laptop run used an earlier 4,096-token output limit, which cut off four answers (two RAG, two closed-book) before their final line. All other runs used 8,192 tokens, so this cell understates the laptop's RAG score.
+¹ The laptop runs used an earlier 4,096-token output limit on retrieval answers, which cut off four of the 9B model's answers (two RAG, two closed-book) before their final line; both RAG misses are among them. All other runs used 8,192 tokens.
+
+Scores reflect one correction made after the runs: the answer key for sorting by read name in samtools now also accepts `-N`, which raised Gemma-4-E4B on Azure from 40 to 41 (see Scorer artefacts). "Speed in run" is the median generation speed across the 53 answers.
 
 The same table, machine-readable, is in `bench/results/summary.csv`.
 
@@ -161,9 +163,9 @@ The same table, machine-readable, is in `bench/results/summary.csv`.
 
 ### What the numbers show
 
-- **Accuracy rises with total parameters, speed follows active parameters.** The 122B MoE model generates 63 tokens/s, almost twice the dense 9B on a T4 (34), because only about 10 B parameters are used per token.
+- **Accuracy rises with total parameters, speed follows active parameters.** On the same L40S hardware, the 122B MoE model generates 63 tokens/s against 107 for the dense 9B: a model 13 times larger is only 1.7 times slower, because only about 10 B of its parameters are used per token.
 - **The "thinking" budget dominates wall-clock time.** Qwen3.5 models generated 100,000–150,000 tokens per run, mostly hidden reasoning. gpt-oss-20b produced about 22,000 and finished all 53 items in 8 minutes at a near-top score.
-- **RAG is close to perfect for every model**, including the 4 B-class Gemma. Closed-book recall is the main differentiator between models.
+- **RAG is close to perfect for every model**, including the 4 B-class Gemma (but see Limitations on how easy these RAG questions are). Closed-book recall is the main differentiator between models.
 - **Memory is the hard limit.** The 122B model needs about 73 GB of GPU memory, which only the HPC provides. Qwen3.5-35B-A3B fits a 16 GB GPU by keeping part of its experts in CPU RAM, at the cost of slower prompt processing (656 tokens/s).
 
 ## Error analysis
@@ -181,11 +183,12 @@ Most failures were not crashes but plausible-looking wrong answers, which is the
 | Translation: wrong record label | Gemma-4-E4B (T4); Gemma-4-E4B (laptop) printed nothing | Printed the FASTA ID instead of the gene name from the `[gene=…]` tag; the lengths were correct. |
 | k-mer count: wrong library call | Gemma-4-E4B (laptop) | Called Biopython's `SeqIO.parse()` without its required format argument and crashed. |
 
-Only Qwen3.5-122B-A10B passed all seven, including the six-frame ORF coordinate convention that tripped every smaller model.
+Only Qwen3.5-122B-A10B passed all seven. The six-frame ORF coordinate convention was the hardest task: only 3 of 8 runs got it right (the 122B and the 9B on the HPC and laptop).
 
 ### Reasoning failures
 
 - **mRNA peptide length:** Qwen3.5-9B (laptop) answered 7 instead of 5 by misreading where the first stop codon falls. On the HPC the same model thought until it hit the 8,192-token limit.
+- **mRNA peptide length, Gemma:** both Gemma-4-E4B runs also answered 7 instead of 5.
 - **Wallace-rule Tm:** Gemma-4-E4B (T4) counted 7 A+T and 7 G+C in an 18-mer (should be 9 and 9) and answered 42 °C instead of 54 °C. Base counting is a known weakness of tokenised models.
 
 ### Retrieval failures (closed-book)
@@ -199,18 +202,24 @@ Only Qwen3.5-122B-A10B passed all seven, including the six-frame ORF coordinate 
 | EGFR location | 7p11.2 | 7q31.3 or 7p13 | Qwen3.5-9B on all machines |
 | BRAF location | 7q34 | 7p34 (122B, wrong arm); 7q31.2 or 7q14 (Gemma) | Qwen3.5-122B-A10B, both Gemma runs |
 
-Gemma-4-E4B also invented samtools options (`-n`, `-r`, `-f` answered wrongly) closed-book; with the manual excerpt supplied, all but one of them (samtools sort by name, on the T4) were answered correctly.
+Gemma-4-E4B also invented samtools options (`-n`, `-r`, `-f` answered wrongly) closed-book; with the manual excerpt supplied, all of them were answered correctly.
 
 ### Scorer artefacts
 
-One gpt-oss-20b answer was correct (CFTR 7q31.2) but ended with `Answer:` instead of `ANSWER:`, so the strict parser rejected it; with a case-insensitive parser gpt-oss-20b scores 49/53. TNF's 6p21.3 is not false, only less specific than the sub-band the question asked for. No other scored failure was a correct answer in disguise.
+Every failure was checked by hand, and an independent review re-derived all answer keys from the raw files. Three issues were found:
+
+1. **Incomplete key, corrected.** `samtools sort` sorts by read name with `-n` and also `-N` (lexicographic), as the supplied manual states. The key first accepted only `-n`. It now accepts both; all stored answers were rescored by `bench/rescore.py` (answers are not regenerated). One item changed: Gemma-4-E4B on Azure, RAG 17 to 18, total 40 to 41.
+2. **Right answer, wrong format, not changed.** One gpt-oss-20b answer was correct (CFTR 7q31.2) but ended with `Answer:` instead of `ANSWER:`; with a case-insensitive parser gpt-oss-20b scores 49/53.
+3. **Arguable answers, not changed.** Both Gemma runs selected SNPs with `-i 'TYPE="snp"'`, a valid bcftools filter expression but not the type option the question asks for. TNF's 6p21.3 is not false, only less specific than the sub-band the question asked for.
+
+The retrieval scorer is also lenient: an accepted option anywhere on the final line passes, so a hedged answer that lists several options would pass.
 
 ## Discussion and limitations
 
 The results match the expectations from the literature: knowledge scales with total parameters, speed with active parameters, and retrieval removes most of the knowledge gap. The practical consequence is that a mid-sized MoE model plus RAG over our own documentation gives near-top accuracy on hardware we already have or can rent cheaply.
 
 - **Correctness needs verification, whatever the model.** Every model below 122 B produced at least one script that ran and printed a wrong number. Generated code must be tested on inputs with a known answer before it touches real data, exactly as this benchmark does.
-- **RAG is the cheapest accuracy gain.** It moved Gemma-4-E4B from 7–10/18 to 17–18/18 on factual questions. It needs only a small embedding model (300 M parameters) and a document index.
+- **RAG is the cheapest accuracy gain.** It moved Gemma-4-E4B from 7–10/18 to 18/18 on factual questions. It needs only a small embedding model (300 M parameters) and a document index.
 - **"Thinking" trades time for accuracy unevenly.** Qwen3.5 thinks at length (up to 8,000 tokens on one item), which explains its long run times. gpt-oss-20b reached 48/53 with about one-sixth of the tokens, making it the most efficient model per answer.
 - **The HPC makes 100 B-class models usable privately.** Two L40S GPUs held the 122B model entirely in GPU memory at 55–63 tokens/s, fast enough for interactive use.
 
@@ -218,7 +227,9 @@ The results match the expectations from the literature: knowledge scales with to
 
 - **One run per item.** With temperature 0.6, a single run can flip an item either way; differences of one or two points between runs are within noise. The 9B model's 43–46 range across machines is a direct estimate of that noise.
 - **Small task set.** 53 items cover typical tasks but not large codebases, multi-file pipelines, workflow languages (Nextflow, Snakemake) or long documents.
-- **Strict automatic scoring.** One correct answer failed on formatting, and less-specific gene bands count as wrong. Scores are therefore slight underestimates.
+- **Automatic scoring has edges.** One correct answer failed on formatting and less-specific gene bands count as wrong, while hedged retrieval answers listing several options would pass. One incomplete key was found and corrected after the runs (see Scorer artefacts).
+- **The RAG questions are easy in this form.** For the gene questions, the pasted passage states the cytogenetic band verbatim, so they test copying from context more than understanding. Retrieval quality (hit@5) was measured by whether a retrieved chunk contains the answer pattern, which is weak evidence for short options such as `-n`. RAG over our own, larger documentation is untested.
+- **Same harness, slightly different versions.** The laptop runs were made with an earlier `run.py` (same prompts and scorers, before the portability changes) and a 4,096-token retrieval limit. Python package versions were not pinned. Generation is not bit-identical across GPUs.
 - **Ground truth from one source.** Gene locations follow NCBI Gene; other databases (Ensembl, older literature) sometimes give different band resolution.
 - **Models not yet run on the HPC.** gpt-oss-120b, Qwen3.5-27B and Gemma-4-31B were downloaded but not benchmarked before this report.
 - **Laptop run settings differed slightly** (4,096-token output limit), as noted under Results.
@@ -260,9 +271,9 @@ See the repository [README](../README.md) and the per-environment guides in `env
 
 1. **Default assistant: Qwen3.5-35B-A3B or gpt-oss-20b**, with RAG. Both run on a single 16 GB GPU (T4 or better), scored 48–50/53, and keep all data in our infrastructure. gpt-oss-20b is about 7× faster per run; Qwen3.5-35B-A3B recalls more facts.
 2. **Highest accuracy: Qwen3.5-122B-A10B on two HPC L40S GPUs**, the only model with every script correct. Suitable for batch use through PBS, or interactive use through an SSH tunnel to a running job.
-3. **Always add RAG over our own documentation** (tool manuals, SOPs, pipeline READMEs). It brought every model to 17–18/18 on factual questions.
+3. **Add RAG over our own documentation** (tool manuals, SOPs, pipeline READMEs). Here it brought every model to 18/18 on factual questions when answers were not cut off; on our own, larger documents this still needs testing.
 4. **Treat generated scripts as drafts.** Test on a small input with a known answer; 9 of the 13 failed scripts ran without error.
-5. **Laptops are adequate for small models** (Qwen3.5-9B, Gemma-4-E4B) but not for repository-scale or agentic coding.
+5. **Laptops are adequate for small models** (Qwen3.5-9B, Gemma-4-E4B). Repository-scale or agentic coding was not tested here; given the small models' scripting error rate, we would not expect them to be reliable for it.
 
 Next steps:
 

@@ -16,7 +16,7 @@ export LD_LIBRARY_PATH=$LLAMA_BIN:$(echo $LLM/llama.cpp/cudart-*):$LLM/lib
 export APPTAINERENV_LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/.singularity.d/libs
 echo "== $(hostname) job $PBS_JOBID gpus=$CUDA_VISIBLE_DEVICES port=$LLM_PORT start $(date)"
 nvidia-smi -i $CUDA_VISIBLE_DEVICES --query-gpu=index,name,memory.total --format=csv
-# Singularity 3.4.1 hangs on compute nodes, so unpack the image to node-local disk with Apptainer (as in ollama-test.pbs).
+# Singularity 3.4.1 hangs on compute nodes, so unpack the image to node-local disk with Apptainer.
 LOCAL=/scratch/$USER/bench-${PBS_JOBID%%.*}; mkdir -p $LOCAL; trap 'rm -rf $LOCAL' EXIT
 module load apptainer/apptainer-1.1.6
 export APPTAINER_CACHEDIR=$LLM/apptainer-cache APPTAINER_TMPDIR=$LOCAL
